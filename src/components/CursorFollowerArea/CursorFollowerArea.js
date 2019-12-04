@@ -17,27 +17,28 @@ const CursorFollowerArea = props => {
       mousePosition.current = { x, y };
     };
 
-    const addMouseListener = () => {
+    const setListeners = () => {
       document.addEventListener('mousemove', mouseMoveHandler);
       document.addEventListener('click', addItem);
-      document.addEventListener('keydown', ({ keyCode }) => {
-        if (keyCode === 46) {
-          removeItem();
-        }
-      })
-      ;
+      document.addEventListener('keydown', keyDownHandler);
     };
 
-    const removeMouseListener = () => {
+    const removeListeners = () => {
       document.removeEventListener('mousemove', mouseMoveHandler);
       document.removeEventListener('click', addItem);
+      document.removeEventListener('keydown', keyDownHandler);
+    };
+
+    const keyDownHandler = ({ keyCode }) => {
+      if (keyCode === 46) {
+        removeItem();
+      }
     };
 
     const getRandomArbitrary = (min, max) => Math.random() * (max - min) + min;
 
     const addItem = () => {
-      setItems(oldItems =>
-        [...oldItems, { maxSpeed: getRandomArbitrary(5, 30), key: uuid4() }]);
+      setItems(oldItems => [...oldItems, { maxSpeed: getRandomArbitrary(5, 30), key: uuid4() }]);
     };
 
     const removeItem = () => {
@@ -49,18 +50,16 @@ const CursorFollowerArea = props => {
 
     const update = () => {
       setTargetPosition({ ...mousePosition.current });
-      requestAnimationFrame(() => {
-        update();
-      });
+      requestAnimationFrame(update);
     };
 
     useEffect(() => {
-      addMouseListener();
+      setListeners();
       requestAnimationFrame(() => {
         update();
       });
       return () => {
-        removeMouseListener();
+        removeListeners();
       };
     }, []);
 
